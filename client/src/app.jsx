@@ -9,7 +9,7 @@ import './assets/index.css';
 import SlideNavbar from './assets/login';
 
 function App() {
-  const api_key = ;  // add you own api key
+  const api_key = "";  // add you own api key
   console.log(api_key);
   const cookies = new Cookies();
   const token = cookies.get("token");

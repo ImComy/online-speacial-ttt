@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useChannelStateContext, useChatContext } from "stream-chat-react";
 import Square from "./Square";
 import { Patterns } from "../WinningPatterns";
-import './board.css'
+import './board.css';
 
 function Board({ result, setResult }) {
   const [board, setBoard] = useState(["", "", "", "", "", "", "", "", ""]);
   const [player, setPlayer] = useState("X");
   const [turn, setTurn] = useState("X");
+  const [moveHistory, setMoveHistory] = useState([]);
 
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
@@ -26,14 +27,33 @@ function Board({ result, setResult }) {
         data: { square, player },
       });
 
-      setBoard(
-        board.map((val, idx) => {
-          if (idx === square && val === "") {
-            return player;
-          }
-          return val;
-        })
-      );
+      const newMoveHistory = [
+        ...moveHistory,
+        { player, square }
+      ];
+
+      if (newMoveHistory.length > 6) {
+        const updatedMoveHistory = newMoveHistory.slice(1);
+        setMoveHistory(updatedMoveHistory);
+
+        // Rebuild the board based on the updated move history
+        const newBoard = ["", "", "", "", "", "", "", "", ""];
+        updatedMoveHistory.forEach((move) => {
+          newBoard[move.square] = move.player;
+        });
+        setBoard(newBoard);
+
+      } else {
+        setMoveHistory(newMoveHistory);
+        setBoard(
+          board.map((val, idx) => {
+            if (idx === square && val === "") {
+              return player;
+            }
+            return val;
+          })
+        );
+      }
     }
   };
 
@@ -72,14 +92,32 @@ function Board({ result, setResult }) {
       const currentPlayer = event.data.player === "X" ? "O" : "X";
       setPlayer(currentPlayer);
       setTurn(currentPlayer);
-      setBoard(
-        board.map((val, idx) => {
-          if (idx === event.data.square && val === "") {
-            return event.data.player;
-          }
-          return val;
-        })
-      );
+      const newMoveHistory = [
+        ...moveHistory,
+        { player: event.data.player, square: event.data.square }
+      ];
+
+      if (newMoveHistory.length > 6) {
+        const updatedMoveHistory = newMoveHistory.slice(1);
+        setMoveHistory(updatedMoveHistory);
+
+        const newBoard = ["", "", "", "", "", "", "", "", ""];
+        updatedMoveHistory.forEach((move) => {
+          newBoard[move.square] = move.player;
+        });
+        setBoard(newBoard);
+
+      } else {
+        setMoveHistory(newMoveHistory);
+        setBoard(
+          board.map((val, idx) => {
+            if (idx === event.data.square && val === "") {
+              return event.data.player;
+            }
+            return val;
+          })
+        );
+      }
     }
   });
 
