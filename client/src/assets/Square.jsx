@@ -1,6 +1,6 @@
 import React from "react";
 
-function Square({ chooseSquare, val }) {
+function Square({ chooseSquare, val, flicker }) {
   let color = "black";
 
   if (val === "X") {
@@ -10,8 +10,13 @@ function Square({ chooseSquare, val }) {
   }
 
   return (
-    <div className="square" onClick={chooseSquare} style={{ color: color, fontSize: "90px" }}>
-      {val}
+    <div className="square" onClick={chooseSquare}>
+      <span
+        className={`square-content ${flicker ? "flicker" : ""}`}
+        style={{ color }}
+      >
+        {val}
+      </span>
     </div>
   );
 }

@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useChannelStateContext, useChatContext } from "stream-chat-react";
 import Square from "./Square";
 import { Patterns } from "../WinningPatterns";
-import './board.css';
+import "./board.css";
 
 function Board({ result, setResult }) {
   const [board, setBoard] = useState(["", "", "", "", "", "", "", "", ""]);
   const [player, setPlayer] = useState("X");
   const [turn, setTurn] = useState("X");
   const [moveHistory, setMoveHistory] = useState([]);
+  const [squareToRemoveNext, setSquareToRemoveNext] = useState(null);
 
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
@@ -17,6 +18,12 @@ function Board({ result, setResult }) {
     checkIfTie();
     checkWin();
   }, [board]);
+
+  useEffect(() => {
+    if (moveHistory.length > 5) {
+      setSquareToRemoveNext(moveHistory[0].square);
+    }
+  }, [moveHistory]);
 
   const chooseSquare = async (square) => {
     if (turn === player && board[square] === "") {
@@ -27,22 +34,20 @@ function Board({ result, setResult }) {
         data: { square, player },
       });
 
-      const newMoveHistory = [
-        ...moveHistory,
-        { player, square }
-      ];
+      const newMoveHistory = [...moveHistory, { player, square }];
 
       if (newMoveHistory.length > 6) {
-        const updatedMoveHistory = newMoveHistory.slice(1);
-        setMoveHistory(updatedMoveHistory);
+        setSquareToRemoveNext(null);
+        setTimeout(() => {
+          const updatedMoveHistory = newMoveHistory.slice(1);
+          setMoveHistory(updatedMoveHistory);
 
-        // Rebuild the board based on the updated move history
-        const newBoard = ["", "", "", "", "", "", "", "", ""];
-        updatedMoveHistory.forEach((move) => {
-          newBoard[move.square] = move.player;
-        });
-        setBoard(newBoard);
-
+          const newBoard = ["", "", "", "", "", "", "", "", ""];
+          updatedMoveHistory.forEach((move) => {
+            newBoard[move.square] = move.player;
+          });
+          setBoard(newBoard);
+        }, 1000); // Adjust flicker duration as needed
       } else {
         setMoveHistory(newMoveHistory);
         setBoard(
@@ -92,21 +97,20 @@ function Board({ result, setResult }) {
       const currentPlayer = event.data.player === "X" ? "O" : "X";
       setPlayer(currentPlayer);
       setTurn(currentPlayer);
-      const newMoveHistory = [
-        ...moveHistory,
-        { player: event.data.player, square: event.data.square }
-      ];
+      const newMoveHistory = [...moveHistory, { player: event.data.player, square: event.data.square }];
 
       if (newMoveHistory.length > 6) {
-        const updatedMoveHistory = newMoveHistory.slice(1);
-        setMoveHistory(updatedMoveHistory);
+        setSquareToRemoveNext(null);
+        setTimeout(() => {
+          const updatedMoveHistory = newMoveHistory.slice(1);
+          setMoveHistory(updatedMoveHistory);
 
-        const newBoard = ["", "", "", "", "", "", "", "", ""];
-        updatedMoveHistory.forEach((move) => {
-          newBoard[move.square] = move.player;
-        });
-        setBoard(newBoard);
-
+          const newBoard = ["", "", "", "", "", "", "", "", ""];
+          updatedMoveHistory.forEach((move) => {
+            newBoard[move.square] = move.player;
+          });
+          setBoard(newBoard);
+        }, 1000); // Adjust flicker duration as needed
       } else {
         setMoveHistory(newMoveHistory);
         setBoard(
@@ -121,62 +125,57 @@ function Board({ result, setResult }) {
     }
   });
 
-  const getSquareClassName = (val) => {
-    if (val === "") return "";
-    return val === "X" ? "square-x" : "square-o";
-  };
-
   return (
     <div className="board">
       <div className="row">
         <Square
           val={board[0]}
           chooseSquare={() => chooseSquare(0)}
-          className={"first"}
+          flicker={squareToRemoveNext === 0}
         />
         <Square
           val={board[1]}
           chooseSquare={() => chooseSquare(1)}
-          className={getSquareClassName(board[1])}
+          flicker={squareToRemoveNext === 1}
         />
         <Square
           val={board[2]}
           chooseSquare={() => chooseSquare(2)}
-          className={"second"}
+          flicker={squareToRemoveNext === 2}
         />
       </div>
       <div className="row middle">
         <Square
           val={board[3]}
           chooseSquare={() => chooseSquare(3)}
-          className={getSquareClassName(board[3])}
+          flicker={squareToRemoveNext === 3}
         />
         <Square
           val={board[4]}
           chooseSquare={() => chooseSquare(4)}
-          className={getSquareClassName(board[4])}
+          flicker={squareToRemoveNext === 4}
         />
         <Square
           val={board[5]}
           chooseSquare={() => chooseSquare(5)}
-          className={getSquareClassName(board[5])}
+          flicker={squareToRemoveNext === 5}
         />
       </div>
       <div className="row">
         <Square
           val={board[6]}
           chooseSquare={() => chooseSquare(6)}
-          className={"third"}
+          flicker={squareToRemoveNext === 6}
         />
         <Square
           val={board[7]}
           chooseSquare={() => chooseSquare(7)}
-          className={getSquareClassName(board[7])}
+          flicker={squareToRemoveNext === 7}
         />
         <Square
           val={board[8]}
           chooseSquare={() => chooseSquare(8)}
-          className={"fourth"}
+          flicker={squareToRemoveNext === 8}
         />
       </div>
     </div>

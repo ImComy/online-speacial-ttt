@@ -24,6 +24,11 @@
   background-color: white;
 }
 
+.square-content {
+  font-size: 90px;
+  font-weight: bold;
+}
+
 .row .square:not(:last-child) {
   border-right: 5px solid grey;
 }
@@ -40,4 +45,14 @@ h4 {
   font-family: Arial, Helvetica, sans-serif;
   color: white;
   font-size: 30px;
+}
+
+@keyframes flicker {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+.flicker {
+  animation: flicker 0.5s linear infinite;
 }
