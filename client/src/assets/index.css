@@ -112,12 +112,15 @@ button:hover{
 	display:flex;
 	flex-direction:column;
 	position:relative;
-	padding-top:40px;
+	padding-top:80px;
+	height:120vh;
+
 }
 
 .leave{
   width:60vw;
   height:45px;
+  margin-bottom:40px;
 }
 
 .flex-row{
